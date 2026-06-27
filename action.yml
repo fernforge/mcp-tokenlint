@@ -21,9 +21,9 @@ inputs:
     required: false
     default: ""
   version:
-    description: "npm version/tag of mcp-tokenlint to run."
+    description: "Git ref (branch/tag) of mcp-tokenlint to run via npx."
     required: false
-    default: "latest"
+    default: "main"
 outputs:
   score:
     description: "The overall token-budget score (0-100)."
@@ -53,14 +53,14 @@ runs:
         [ -n "${{ inputs.budget }}" ] && FLAGS="$FLAGS --budget ${{ inputs.budget }}"
 
         # JSON for outputs (never fails the job).
-        eval "npx -y mcp-tokenlint@${{ inputs.version }} $INPUT --json" > report.json || true
+        eval "npx -y github:fernforge/mcp-tokenlint $INPUT --json" > report.json || true
         SCORE=$(node -e "console.log(require('./report.json').score)")
         TOTAL=$(node -e "console.log(require('./report.json').totalTokens)")
         echo "score=$SCORE" >> "$GITHUB_OUTPUT"
         echo "total_tokens=$TOTAL" >> "$GITHUB_OUTPUT"
 
         # Markdown -> job summary.
-        eval "npx -y mcp-tokenlint@${{ inputs.version }} $INPUT --markdown" >> "$GITHUB_STEP_SUMMARY" || true
+        eval "npx -y github:fernforge/mcp-tokenlint $INPUT --markdown" >> "$GITHUB_STEP_SUMMARY" || true
 
         # Gating run (may fail the job).
-        eval "npx -y mcp-tokenlint@${{ inputs.version }} $INPUT --no-color $FLAGS"
+        eval "npx -y github:fernforge/mcp-tokenlint $INPUT --no-color $FLAGS"

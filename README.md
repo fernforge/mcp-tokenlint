@@ -2,9 +2,9 @@
 
 **A Lighthouse score for your MCP server's context budget.** Find out how many tokens your tool schemas burn *before a single user prompt* — and get ranked, deterministic suggestions to shrink them.
 
-[![npm](https://img.shields.io/npm/v/mcp-tokenlint.svg)](https://www.npmjs.com/package/mcp-tokenlint)
 [![CI-ready](https://img.shields.io/badge/CI-GitHub%20Action-purple)](#use-it-in-ci)
-[![license](https://img.shields.io/npm/l/mcp-tokenlint.svg)](./LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
+[![run with npx](https://img.shields.io/badge/run-npx%20github%3Afernforge%2Fmcp--tokenlint-black)](#quick-start)
 
 ```
   mcp-tokenlint — MCP token-budget report
@@ -37,16 +37,20 @@ Every existing fix — Tool Search, gateways, proxies, dynamic toolsets — is *
 
 ## Quick start
 
+No install required — run it straight from this repo with `npx`:
+
 ```bash
 # Lint a tools/list dump
-npx mcp-tokenlint tools.json
+npx github:fernforge/mcp-tokenlint tools.json
 
 # Or point it at a live server over stdio — no dump needed
-npx mcp-tokenlint --cmd "npx -y @modelcontextprotocol/server-filesystem ."
+npx github:fernforge/mcp-tokenlint --cmd "npx -y @modelcontextprotocol/server-filesystem ."
 
 # Pipe a dump in
-curl -s https://example.com/tools.json | npx mcp-tokenlint -
+curl -s https://example.com/tools.json | npx github:fernforge/mcp-tokenlint -
 ```
+
+> Prefer a local clone? `git clone https://github.com/fernforge/mcp-tokenlint && cd mcp-tokenlint && npm install && node dist/cli.js tools.json`. A versioned npm release is coming.
 
 Getting a `tools.json` is one call against your running server:
 
@@ -81,7 +85,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
-      - uses: fernforge/mcp-tokenlint@v0.1.0
+      - uses: fernforge/mcp-tokenlint@main
         with:
           cmd: "node build/server.js"   # or: tools: tools.json
           min-score: 70
