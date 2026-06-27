@@ -1,0 +1,41 @@
+{
+  "tools": [
+    {
+      "name": "search_documents",
+      "description": "This tool allows you to search through all of the documents that are currently stored in the knowledge base. You can use it to find documents by keyword, by phrase, or by semantic similarity. It is very powerful and flexible. Please note that you should always use this tool when the user asks you to find, look up, retrieve, locate, or otherwise discover any information that might be stored in a document. Remember that the results are ranked by relevance and you can paginate through them. For best results, provide a clear and specific query.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The search query string. This should be a clear and specific description of what you are looking for, expressed in natural language or as a set of keywords that best capture the user's intent."
+          },
+          "country": {
+            "type": "string",
+            "enum": ["AF","AL","DZ","AS","AD","AO","AI","AQ","AG","AR","AM","AW","AU","AT","AZ","BS","BH","BD","BB","BY","BE","BZ","BJ","BM","BT","BO","BA","BW","BR","BN","BG","BF","BI","KH","CM","CA","CV","KY","CF","TD","CL","CN","CO","KM","CG","CD","CR","HR","CU","CY","CZ"],
+            "description": "Optional two-letter country code to restrict the search to documents originating from a particular country."
+          },
+          "limit": { "type": "integer", "description": "Maximum number of results to return." }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "create_event",
+      "description": "Create a calendar event.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "description": "Event title." },
+          "start": { "type": "string", "description": "ISO 8601 start time." },
+          "end": { "type": "string", "description": "ISO 8601 end time." }
+        },
+        "required": ["title", "start"]
+      }
+    },
+    {
+      "name": "do_thing",
+      "inputSchema": { "type": "object", "properties": {} }
+    }
+  ]
+}

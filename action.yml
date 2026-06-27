@@ -1,0 +1,66 @@
+name: "mcp-tokenlint"
+description: "Score and shrink the context-window cost of your MCP server's tool schemas in CI."
+branding:
+  icon: "bar-chart-2"
+  color: "purple"
+inputs:
+  tools:
+    description: "Path to a tools/list JSON dump (or a bare tool array)."
+    required: false
+    default: ""
+  cmd:
+    description: "Command to spawn a live MCP server over stdio (alternative to `tools`)."
+    required: false
+    default: ""
+  min-score:
+    description: "Fail the job if the budget score is below this (0-100)."
+    required: false
+    default: ""
+  budget:
+    description: "Fail the job if total tool tokens exceed this."
+    required: false
+    default: ""
+  version:
+    description: "npm version/tag of mcp-tokenlint to run."
+    required: false
+    default: "latest"
+outputs:
+  score:
+    description: "The overall token-budget score (0-100)."
+    value: ${{ steps.lint.outputs.score }}
+  total-tokens:
+    description: "Total tokens across all tools."
+    value: ${{ steps.lint.outputs.total_tokens }}
+runs:
+  using: "composite"
+  steps:
+    - id: lint
+      shell: bash
+      run: |
+        set -euo pipefail
+        INPUT=""
+        if [ -n "${{ inputs.cmd }}" ]; then
+          INPUT="--cmd \"${{ inputs.cmd }}\""
+        elif [ -n "${{ inputs.tools }}" ]; then
+          INPUT="${{ inputs.tools }}"
+        else
+          echo "::error::Provide either `tools` (a JSON dump) or `cmd` (a server command)."
+          exit 1
+        fi
+
+        FLAGS=""
+        [ -n "${{ inputs.min-score }}" ] && FLAGS="$FLAGS --min-score ${{ inputs.min-score }}"
+        [ -n "${{ inputs.budget }}" ] && FLAGS="$FLAGS --budget ${{ inputs.budget }}"
+
+        # JSON for outputs (never fails the job).
+        eval "npx -y mcp-tokenlint@${{ inputs.version }} $INPUT --json" > report.json || true
+        SCORE=$(node -e "console.log(require('./report.json').score)")
+        TOTAL=$(node -e "console.log(require('./report.json').totalTokens)")
+        echo "score=$SCORE" >> "$GITHUB_OUTPUT"
+        echo "total_tokens=$TOTAL" >> "$GITHUB_OUTPUT"
+
+        # Markdown -> job summary.
+        eval "npx -y mcp-tokenlint@${{ inputs.version }} $INPUT --markdown" >> "$GITHUB_STEP_SUMMARY" || true
+
+        # Gating run (may fail the job).
+        eval "npx -y mcp-tokenlint@${{ inputs.version }} $INPUT --no-color $FLAGS"

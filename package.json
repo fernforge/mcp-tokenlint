@@ -1,0 +1,60 @@
+{
+  "name": "mcp-tokenlint",
+  "version": "0.1.0",
+  "description": "Lighthouse-style token-budget linter for MCP servers. Score and shrink the context your tool schemas burn before a single user prompt.",
+  "type": "module",
+  "bin": {
+    "mcp-tokenlint": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test \"test/**/*.test.js\"",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "tokens",
+    "context-window",
+    "linter",
+    "ai-agents",
+    "tool-schema",
+    "llm",
+    "anthropic",
+    "claude",
+    "ci"
+  ],
+  "author": "fernforge",
+  "license": "MIT",
+  "homepage": "https://github.com/fernforge/mcp-tokenlint",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fernforge/mcp-tokenlint.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fernforge/mcp-tokenlint/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "gpt-tokenizer": "^2.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "typescript": "^5.9.3"
+  }
+}
