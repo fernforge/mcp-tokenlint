@@ -6,6 +6,8 @@
 [![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 [![run with npx](https://img.shields.io/badge/run-npx%20github%3Afernforge%2Fmcp--tokenlint-black)](#quick-start)
 
+🔗 **[fernforge.github.io/mcp-tokenlint](https://fernforge.github.io/mcp-tokenlint/)** — one-page overview.
+
 ```
   mcp-tokenlint — MCP token-budget report
 
