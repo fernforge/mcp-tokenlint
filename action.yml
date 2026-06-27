@@ -1,4 +1,5 @@
 name: "mcp-tokenlint"
+author: "fernforge"
 description: "Score and shrink the context-window cost of your MCP server's tool schemas in CI."
 branding:
   icon: "bar-chart-2"
@@ -23,7 +24,7 @@ inputs:
   version:
     description: "Git ref (branch/tag) of mcp-tokenlint to run via npx."
     required: false
-    default: "main"
+    default: "v0.1.1"
 outputs:
   score:
     description: "The overall token-budget score (0-100)."

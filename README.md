@@ -1,12 +1,12 @@
 # mcp-tokenlint
 
-**A Lighthouse score for your MCP server's context budget.** Find out how many tokens your tool schemas burn *before a single user prompt* — and get ranked, deterministic suggestions to shrink them.
+**A Lighthouse score for your MCP server's context budget.** Find out how many tokens your tool schemas burn *before a single user prompt*, then get ranked, deterministic suggestions to shrink them.
 
 [![CI-ready](https://img.shields.io/badge/CI-GitHub%20Action-purple)](#use-it-in-ci)
 [![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 [![run with npx](https://img.shields.io/badge/run-npx%20github%3Afernforge%2Fmcp--tokenlint-black)](#quick-start)
 
-🔗 **[fernforge.github.io/mcp-tokenlint](https://fernforge.github.io/mcp-tokenlint/)** — one-page overview.
+One-page overview: [fernforge.github.io/mcp-tokenlint](https://fernforge.github.io/mcp-tokenlint/).
 
 ```
   mcp-tokenlint — MCP token-budget report
@@ -28,18 +28,18 @@
 
 ## Why this exists
 
-Every tool your MCP server exposes is serialized into the model's context window on **every request**, before the user has typed anything. Authors rarely see this cost — but it's large and it compounds:
+Every tool your MCP server exposes is serialized into the model's context window on **every request**, before the user has typed anything. Authors rarely see this cost. It's large, and it compounds:
 
 - A 5-server setup consumes **~55,000 tokens before any work begins**; tool-selection accuracy degrades once you cross **~30–50 tools**. ([Anthropic, *Advanced tool use*](https://www.anthropic.com/engineering/advanced-tool-use))
 - Under prompt bloat, tool-selection accuracy collapses from **43% → 14%**. ([RAG-MCP, arXiv 2505.03275](https://arxiv.org/abs/2505.03275))
 - An empirical study of 856 tools across 103 servers found **97.1% of tool descriptions have at least one "smell."** ([arXiv 2602.14878](https://arxiv.org/html/2602.14878v1))
 - GitHub found unused/over-described MCP tools were the most common inefficiency in agentic workflows, with **19–62% token reductions** after pruning. ([GitHub blog](https://github.blog/ai-and-ml/github-copilot/improving-token-efficiency-in-github-agentic-workflows/))
 
-Every existing fix — Tool Search, gateways, proxies, dynamic toolsets — is **consumer / runtime-side**. `mcp-tokenlint` is **shift-left**: it scores and shrinks your footprint *at publish time*, in your own repo, in CI.
+Every existing fix (Tool Search, gateways, proxies, dynamic toolsets) is **consumer / runtime-side**. `mcp-tokenlint` is **shift-left**: it scores and shrinks your footprint *at publish time*, in your own repo, in CI.
 
 ## Quick start
 
-No install required — run it straight from this repo with `npx`:
+No install required. Run it straight from this repo with `npx`:
 
 ```bash
 # Lint a tools/list dump
@@ -87,7 +87,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
-      - uses: fernforge/mcp-tokenlint@main
+      - uses: fernforge/mcp-tokenlint@v0.1.1
         with:
           cmd: "node build/server.js"   # or: tools: tools.json
           min-score: 70
@@ -121,11 +121,11 @@ Token counts use the **`o200k_base`** (GPT-4o) encoding as a stable, reproducibl
 
 ## What it flags
 
-`missing-name` · `duplicate-name` · `missing-description` · `verbose-description` · `verbose-param` · `large-enum` · `heavy-schema` · `heavy-output-schema` · `heavy-tool` — each with a conservative estimate of recoverable tokens.
+`missing-name` · `duplicate-name` · `missing-description` · `verbose-description` · `verbose-param` · `large-enum` · `heavy-schema` · `heavy-output-schema` · `heavy-tool`, each with a conservative estimate of recoverable tokens.
 
 ## How it compares
 
-`mcp-tokenlint` is intentionally narrow: it is the **token-budget / cost** lens. If you need protocol conformance or security scanning, reach for [`@modelcontextprotocol/conformance`](https://github.com/modelcontextprotocol/conformance) or a runtime scanner. Use them together — this one keeps your context lean; those keep it correct and safe.
+`mcp-tokenlint` is intentionally narrow: it is the **token-budget / cost** lens. If you need protocol conformance or security scanning, reach for [`@modelcontextprotocol/conformance`](https://github.com/modelcontextprotocol/conformance) or a runtime scanner. Use them together: this one keeps your context lean, those keep it correct and safe.
 
 ## License
 
