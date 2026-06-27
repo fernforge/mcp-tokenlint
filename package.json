@@ -22,6 +22,7 @@
   "scripts": {
     "build": "tsc",
     "test": "node --test \"test/**/*.test.js\"",
+    "prepare": "npm run build",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
