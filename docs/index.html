@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mcp-tokenlint — a Lighthouse score for your MCP server's context budget</title>
+<meta name="description" content="Find out how many context tokens your MCP server's tool schemas burn before a single user prompt — and shrink them. A deterministic, author-side token-budget linter. CLI + GitHub Action, no API key.">
+<meta name="keywords" content="MCP, Model Context Protocol, token budget, context window, LLM tools, AI agents, linter, Claude, Anthropic, tool schema, CI">
+<link rel="canonical" href="https://fernforge.github.io/mcp-tokenlint/">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="mcp-tokenlint — a Lighthouse score for your MCP server's context budget">
+<meta property="og:description" content="Your MCP tool schemas burn 50–140k tokens before a single user prompt. mcp-tokenlint scores and shrinks that footprint at publish time, in CI.">
+<meta property="og:url" content="https://fernforge.github.io/mcp-tokenlint/">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root{--bg:#0d1117;--panel:#161b22;--ink:#e6edf3;--mut:#8b949e;--acc:#a371f7;--good:#3fb950;--warn:#d29922;--bad:#f85149;--line:#30363d}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  a{color:var(--acc)}
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px}
+  header{text-align:center;padding:72px 20px 40px}
+  h1{font-size:2.5rem;line-height:1.15;margin:0 0 16px;font-weight:800;letter-spacing:-.02em}
+  h1 .em{color:var(--acc)}
+  .sub{font-size:1.2rem;color:var(--mut);max-width:620px;margin:0 auto 28px}
+  .cta{display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .btn{display:inline-block;padding:12px 22px;border-radius:8px;font-weight:600;text-decoration:none}
+  .btn.primary{background:var(--acc);color:#fff}
+  .btn.ghost{border:1px solid var(--line);color:var(--ink)}
+  code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .run{display:inline-block;margin-top:22px;background:#010409;border:1px solid var(--line);border-radius:8px;padding:12px 18px;color:var(--good);font-size:.95rem}
+  section{padding:36px 0;border-top:1px solid var(--line)}
+  h2{font-size:1.5rem;margin:0 0 18px;letter-spacing:-.01em}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+  .stat .n{font-size:1.7rem;font-weight:800;color:var(--acc)}
+  .stat .l{color:var(--mut);font-size:.92rem;margin-top:4px}
+  .stat .src{font-size:.78rem;margin-top:8px}
+  pre.report{background:#010409;border:1px solid var(--line);border-radius:10px;padding:20px;overflow:auto;font-size:.85rem;line-height:1.5}
+  .g{color:var(--good)}.w{color:var(--warn)}.b{color:var(--bad)}.m{color:var(--mut)}.a{color:var(--acc)}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  td.r,th.r{text-align:right}
+  .grade-A{color:var(--good);font-weight:700}.grade-C{color:var(--warn);font-weight:700}.grade-F{color:var(--bad);font-weight:700}
+  ul.feat{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  ul.feat li{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+  ul.feat b{color:var(--ink)}
+  footer{text-align:center;color:var(--mut);padding:48px 20px;font-size:.9rem}
+  pre.code{background:#010409;border:1px solid var(--line);border-radius:10px;padding:16px;overflow:auto;font-size:.88rem;color:var(--ink)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>A <span class="em">Lighthouse score</span> for your MCP server's context budget</h1>
+    <p class="sub">Every tool your MCP server exposes is serialized into the model's context window on <em>every</em> request — before the user types a word. <strong>mcp-tokenlint</strong> measures that hidden cost and gives you ranked, deterministic ways to shrink it.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/fernforge/mcp-tokenlint">View on GitHub →</a>
+      <a class="btn ghost" href="#quickstart">Quick start</a>
+    </div>
+    <div class="run">$ npx github:fernforge/mcp-tokenlint --cmd "your-server"</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section>
+  <h2>The cost is real, large, and invisible to authors</h2>
+  <div class="stats">
+    <div class="stat"><div class="n">43% → 14%</div><div class="l">tool-selection accuracy collapse under prompt bloat</div><div class="src"><a href="https://arxiv.org/abs/2505.03275">RAG-MCP, arXiv 2505.03275</a></div></div>
+    <div class="stat"><div class="n">~55,000</div><div class="l">tokens a 5-server setup burns before any work begins</div><div class="src"><a href="https://www.anthropic.com/engineering/advanced-tool-use">Anthropic, Advanced tool use</a></div></div>
+    <div class="stat"><div class="n">97.1%</div><div class="l">of 856 tool descriptions had at least one "smell"</div><div class="src"><a href="https://arxiv.org/html/2602.14878v1">arXiv 2602.14878</a></div></div>
+    <div class="stat"><div class="n">19–62%</div><div class="l">token reduction after pruning over-described tools</div><div class="src"><a href="https://github.blog/ai-and-ml/github-copilot/improving-token-efficiency-in-github-agentic-workflows/">GitHub blog</a></div></div>
+  </div>
+  <p style="color:var(--mut);margin-top:20px">Every existing fix — Tool Search, gateways, proxies, dynamic toolsets — is <strong>consumer / runtime-side</strong>. mcp-tokenlint is <strong>shift-left</strong>: it scores and shrinks your footprint <em>at publish time</em>, in your own repo, in CI.</p>
+</section>
+
+<section>
+  <h2>What you get</h2>
+  <pre class="report"><span class="m">  mcp-tokenlint — MCP token-budget report</span>
+
+  Score <span class="b">41/100</span>  (grade <span class="b">F</span>)  <span class="a">████████░░░░░░░░░░░░</span>
+  18,204 tokens across 37 tools · avg 492/tool
+
+  <span class="m">Sub-scores</span>
+    budget          <span class="w">42</span>  ██████░░░░░░░░
+    toolCount       <span class="g">90</span>  █████████████░
+    perToolBloat    <span class="w">55</span>  ███████░░░░░░░
+    hygiene         <span class="b">30</span>  ████░░░░░░░░░░
+
+  <span class="m">Suggestions  (est. recoverable: ~6,300 tokens)</span>
+    <span class="a">▲</span> search_documents  An enum has 51 values (103 tokens). Validate server-side instead…
+    <span class="a">▲</span> search_documents  Description is 108 tokens. Tighten to ~60; cut examples/preamble.
+    <span class="a">▲</span> create_report     inputSchema is 740 tokens. Flatten nesting, drop unused fields…</pre>
+</section>
+
+<section id="quickstart">
+  <h2>Quick start — no install, no API key</h2>
+  <pre class="code"># Point it at a live server over stdio
+npx github:fernforge/mcp-tokenlint --cmd "npx -y @modelcontextprotocol/server-filesystem ."
+
+# Or lint a tools/list dump
+npx github:fernforge/mcp-tokenlint tools.json
+
+# Gate a number in CI
+npx github:fernforge/mcp-tokenlint tools.json --min-score 70</pre>
+  <p style="color:var(--mut)">Fully deterministic — no LLM, no black box. Token counts use the <code>o200k_base</code> encoding as a stable, reproducible proxy for context cost; the scoring curve is open in <a href="https://github.com/fernforge/mcp-tokenlint/blob/main/src/score.ts">src/score.ts</a>.</p>
+</section>
+
+<section>
+  <h2>Drop it in CI</h2>
+  <pre class="code"># .github/workflows/mcp-budget.yml
+- uses: fernforge/mcp-tokenlint@main
+  with:
+    cmd: "node build/server.js"   # or: tools: tools.json
+    min-score: 70</pre>
+  <p style="color:var(--mut)">Writes a Markdown report to the job summary and exposes <code>score</code> / <code>total-tokens</code> outputs you can gate on or post as a PR comment.</p>
+</section>
+
+<section>
+  <h2>Live scorecard</h2>
+  <p style="color:var(--mut)">Real scores for popular MCP servers, measured over stdio. Re-run any row yourself.</p>
+  <table>
+    <tr><th>Server</th><th class="r">Tools</th><th class="r">Tokens</th><th class="r">Score</th><th>Grade</th></tr>
+    <tr><td><code>server-everything</code></td><td class="r">13</td><td class="r">1,423</td><td class="r">99</td><td class="grade-A">A</td></tr>
+    <tr><td><code>server-filesystem</code></td><td class="r">14</td><td class="r">2,741</td><td class="r">94</td><td class="grade-A">A</td></tr>
+    <tr><td><code>server-memory</code></td><td class="r">9</td><td class="r">2,230</td><td class="r">94</td><td class="grade-A">A</td></tr>
+    <tr><td><code>sequential-thinking</code></td><td class="r">1</td><td class="r">942</td><td class="r">73</td><td class="grade-C">C</td></tr>
+  </table>
+  <p style="color:var(--mut);margin-top:14px">One fat tool can sink a whole server: <code>sequential-thinking</code> exposes a <em>single</em> tool, but its description alone is 566 tokens. Token cost is per-definition, not per-server. <a href="https://github.com/fernforge/mcp-tokenlint/blob/main/SCORECARD.md">Full scorecard →</a></p>
+</section>
+
+<section>
+  <h2>Why authors, not users</h2>
+  <ul class="feat">
+    <li><b>Shift-left.</b> Fix bloat once, at the source — every downstream user benefits automatically.</li>
+    <li><b>Deterministic.</b> Same input, same score. No LLM call, no API key, no network.</li>
+    <li><b>CI-native.</b> Fail a PR that bloats your tool budget. Track the score like a test.</li>
+    <li><b>Actionable.</b> Ranked suggestions with estimated token savings, not just a number.</li>
+  </ul>
+</section>
+
+</div>
+
+<footer>
+  <p><a href="https://github.com/fernforge/mcp-tokenlint">github.com/fernforge/mcp-tokenlint</a> · MIT · built by fernforge</p>
+</footer>
+</body>
+</html>
